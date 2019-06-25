@@ -72,15 +72,15 @@ window.onload = function() {
 
 let cities = {
   moscow: {
-    url: "http://worldtimeapi.org/api/timezone/Europe/Moscow",
+    url: "https://worldtimeapi.org/api/timezone/Europe/Moscow",
     name: "Москва"
   },
   newYork: {
-    url: "http://worldtimeapi.org/api/timezone/America/New_York",
+    url: "https://worldtimeapi.org/api/timezone/America/New_York",
     name: "Нью-Йорк"
   },
   tokyo: {
-    url: "http://worldtimeapi.org/api/timezone/Asia/Tokyo",
+    url: "https://worldtimeapi.org/api/timezone/Asia/Tokyo",
     name: "Токио"
   }
 }
