@@ -1,0 +1,79 @@
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  width: 400px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+  border-radius: 5px;
+  box-shadow: 0 5px 10px rgba(0,0,0,.15);
+  background-color: #f8f9fa;
+  color: #343a40;
+  font-size: 20px;
+}
+
+.clock-label {
+  margin-bottom: 10px;
+  font-size: 25px;
+}
+
+.date-label {
+  margin-bottom: 10px;
+}
+
+.city-label {
+  margin-bottom: 10px;
+}
+
+.city-label__select {
+  display: block;
+  width: 100%;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.city-label__select:focus {
+  outline: none;
+}
+
+.format-label {
+  
+  border-radius: 10px;
+  display: flex;
+
+}
+
+.format-label__label {
+  border: 1px solid #6c757d;
+  width: 100%;
+  cursor: pointer;
+  transition: color .3s, background-color .3s;
+  padding: 3px;
+}
+
+.format-label__label:first-child {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.format-label__label:last-child {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.format-label__label.active {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.format-label__label > input {
+  display: none;
+}
