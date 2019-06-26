@@ -14,18 +14,25 @@ window.onload = function() {
     formatInputLabels = app.querySelectorAll('.format-label__label'),
     title = document.querySelector('title');
 
-  let clock = new Clock({
+  const clock = new Clock({
     city: 'moscow',
     format: 24,
   });
 
+  const analogClock = new AnalogClock({
+    app,
+    clock: clock
+  });
+
   let interval;
-  
+
   clock.onload = function() {
     render();
+    analogClock.render();
     interval = setInterval(() => {
       clock.tick();
       render();
+      analogClock.render();
     }, 1000);
   }
 
@@ -35,9 +42,11 @@ window.onload = function() {
     clock.update()
       .then(() => {
         render();
+        analogClock.render();
         interval = setInterval(() => {
           clock.tick();
           render();
+          analogClock.render();
         }, 1000);
       });
   }
@@ -175,6 +184,126 @@ class Clock {
       return "0" + num;
     }
     return num;
+  }
+}
+
+class AnalogClock {
+  constructor(opts) {
+    this.cnv = document.createElement('canvas');
+    let appStyle = getComputedStyle(opts.app);
+    let width = opts.app.clientWidth - 
+      parseFloat(appStyle.paddingLeft) - 
+      parseFloat(appStyle.paddingRight);
+    this.cnv.width = width;
+    this.cnv.height = width;
+    app.prepend(this.cnv);
+
+    this.ctx = this.cnv.getContext('2d');
+    this.mainColor = "#343a40";
+    this.clock = opts.clock;
+
+    this.render();
+  }
+
+  render() {
+    this.ctx.clearRect(0, 0, this.cnv.width, this.cnv.height);
+
+    this.renderClockFace();
+
+    if (!this.clock.date)
+      return;
+
+    let hours = this.clock.hours;
+    if (hours > 12)
+      hours -= 12;
+
+    const hoursAngle = 360 * hours / 12;
+    const minutesAngle = 360 * this.clock.minutes / 60;
+    const secondsAngle = 360 * this.clock.seconds / 60;
+
+    this.renderArrow(hoursAngle, "hours");
+    this.renderArrow(minutesAngle, "minutes");
+    this.renderArrow(secondsAngle, "seconds");
+  }
+
+  renderClockFace() {
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = this.mainColor;
+    this.ctx.beginPath();
+    this.ctx.arc(this.cnv.width / 2, this.cnv.height / 2, this.cnv.height / 2 - 10, 0, 2 * Math.PI);
+    this.ctx.stroke();
+    this.ctx.beginPath();
+    this.ctx.arc(this.cnv.width / 2, this.cnv.height / 2, 10, 0, 2 * Math.PI);
+    this.ctx.stroke();
+
+    for (let i = 0; i < 12; i++) {
+      let angle = 360 / 12 * i;
+      angle = angle * Math.PI / 180;
+      
+      const length = this.cnv.height / 2 - 10;
+      const coords = AnalogClock.getVectorFromAngle(angle, length);
+      coords.x += this.cnv.height / 2;
+      coords.y += this.cnv.height / 2;
+
+      this.ctx.beginPath();
+      this.ctx.arc(coords.x, coords.y, 5, 0, 2 * Math.PI);
+      this.ctx.fill();
+    }
+  }
+
+  renderArrow(angle, type="seconds") {
+    // Переводим угол в радианы и приравниваем ноль к 12 часам
+    angle -= 90;
+    angle = angle * Math.PI / 180;
+
+    const types = {
+      hours: {
+        color: "#007bff",
+        width: 10,
+        length: 0.7
+      },
+      minutes: {
+        color: "#28a745",
+        width: 7,
+        length: 0.85
+      },
+      seconds: {
+        color: this.mainColor,
+        width: 4,
+        length: 1
+      },
+    }
+    
+    const startPoint = AnalogClock.getVectorFromAngle(angle, 30);
+    const endPoint = AnalogClock.getVectorFromAngle(
+      angle, 
+      (this.cnv.width / 2 - 30) * types[type].length
+    );
+    startPoint.x += this.cnv.width / 2;
+    startPoint.y += this.cnv.width / 2;
+    endPoint.x += this.cnv.width / 2;
+    endPoint.y += this.cnv.width / 2;
+    
+    this.ctx.strokeStyle = types[type].color;
+    this.ctx.fillStyle = types[type].color;
+    this.ctx.lineWidth = types[type].width;
+    this.ctx.beginPath();
+    this.ctx.arc(startPoint.x, startPoint.y, types[type].width / 2, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.beginPath();
+    this.ctx.arc(endPoint.x, endPoint.y, types[type].width / 2, 0, 2 * Math.PI);
+    this.ctx.fill();
+    this.ctx.beginPath();
+    this.ctx.moveTo(startPoint.x, startPoint.y);
+    this.ctx.lineTo(endPoint.x, endPoint.y);
+    this.ctx.stroke();
+  }
+
+  static getVectorFromAngle(angle, magnitude) {
+    return {
+      x: magnitude * Math.cos(angle), 
+      y: magnitude * Math.sin(angle)
+    };
   }
 }
 
